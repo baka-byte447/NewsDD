@@ -12,4 +12,6 @@ class Config:
     GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID')
     GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET')
     GOOGLE_TRANSLATE_KEY = os.getenv('GOOGLE_TRANSLATE_KEY')
-    FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+    
+    # Frontend URL - use production URL in production, localhost in development
+    FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://news-summarizer-dashboard.vercel.app' if os.getenv('FLASK_ENV') == 'production' else 'http://localhost:3000')

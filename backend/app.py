@@ -35,7 +35,7 @@ app.secret_key = app.config['SECRET_KEY']
 # Configure CORS for production
 CORS(app, supports_credentials=True, origins=[
     'http://localhost:3000',  # Local development
-    'https://news-summarizer-dashboard-swlg.vercel.app'  # Vercel frontend (removed trailing slash)
+    'https://news-summarizer-dashboard.vercel.app'  # Production Vercel frontend
 ])
 
 # Initialize OAuth

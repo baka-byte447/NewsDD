@@ -13,6 +13,9 @@ class ProductionConfig:
     GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET')
     GOOGLE_TRANSLATE_KEY = os.getenv('GOOGLE_TRANSLATE_KEY')
     
+    # Production frontend URL
+    FRONTEND_URL = 'https://news-summarizer-dashboard.vercel.app'
+    
     # Production specific settings
     DEBUG = False
     TESTING = False
