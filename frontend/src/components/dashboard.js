@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RefreshCw, AlertCircle, Loader } from 'lucide-react';
-import NewsCard from './NewsCard';
-import api  from '../utils/api';
-import { getPreferences } from '../utils/storage';
+import NewsCard from './NewsCard.js';
+import api  from '../utils/api.js';
+import { getPreferences } from '../utils/storage.js';
 
 const Dashboard = ({ 
   activeCategory, 

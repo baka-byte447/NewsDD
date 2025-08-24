@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Navbar from './components/Navbar';
-import Dashboard from './components/Dashboard';
-import OnboardingModal from './components/OnboardingModal';
-import NewsModal from './components/NewsModal';
-import SettingsModal from './components/SettingsModal';
-import SavedArticles from './components/SavedArticles';
+import Navbar from './components/Navbar.js';
+import Dashboard from './components/Dashboard.js';
+import OnboardingModal from './components/OnboardingModal.js';
+import NewsModal from './components/NewsModal.js';
+import SettingsModal from './components/SettingsModal.js';
+import SavedArticles from './components/SavedArticles.js';
 import { 
   getPreferences, 
   savePreferences, 
   defaultPreferences,
   getReadingStreak,
   getDailyReads 
-} from './utils/storage';
-import api  from './utils/api'; 
+} from './utils/storage.js';
+import api  from './utils/api.js'; 
 // import { getUser } from './utils/api'; 
 import './styles/globals.css';
 
