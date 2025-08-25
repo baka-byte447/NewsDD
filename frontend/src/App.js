@@ -435,7 +435,7 @@ function App() {
                     />
                   ) : (
                     <Routes>
-                      <Route path="/dashboard" element={
+                      <Route path="/Dashboard" element={
                         <Dashboard
                           activeCategory={activeCategory}
                           preferences={preferences}
@@ -443,7 +443,7 @@ function App() {
                           refreshTrigger={refreshTrigger}
                         />
                       } />
-                      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                      <Route path="/" element={<Navigate to="/Dashboard" replace />} />
                     </Routes>
                   )}
                 </main>
