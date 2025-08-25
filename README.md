@@ -44,7 +44,7 @@ A modern, intelligent news aggregation and summarization platform built with Rea
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/NewsSumm.git
+git clone https://github.com/baka-byte447/NewsSumm.git
 cd NewsSumm
 ```
 
@@ -257,6 +257,6 @@ docker-compose up --build
 
 ---
 
-**Made with ❤️ by Milan**
+**Made with ❤️ by Team G-30**
 
 *Star this repository if you found it helpful!*
