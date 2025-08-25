@@ -18,9 +18,10 @@ A modern, intelligent news aggregation and summarization platform built with Rea
 - **Dark/Light Mode**: Beautiful theme switching with smooth transitions
 
 ### 🔐 Authentication
-- **GitHub OAuth** integration
-- **Google OAuth** integration
-- Secure session management with JWT tokens
+- **Email/Password** authentication with secure password hashing
+- Session-based authentication with secure cookies
+- CORS protection with dynamic origin handling
+- Secure headers and CSRF protection
 
 ### 💾 Smart Storage
 - Browser-based storage (LocalStorage)
@@ -85,9 +86,9 @@ The app will be available at:
 |---------|---------|------|-------------|
 | **News API** | Fetch news articles | Free (1000 req/day) | [NewsAPI.org](https://newsapi.org) |
 | **Gemini API** | AI summarization | Free (15 req/min) | [Google AI Studio](https://makersuite.google.com/app/apikey) |
-| **GitHub OAuth** | User authentication | Free | [GitHub Developer Settings](https://github.com/settings/developers) |
-| **Google OAuth** | User authentication | Free | [Google Cloud Console](https://console.cloud.google.com/) |
 | **Google Translate** | Language translation | $20/month | [Google Cloud Console](https://console.cloud.google.com/) |
+
+> **Note:** Email/Password authentication is built-in and doesn't require additional API keys.
 
 ### Environment Variables
 Create a `.env` file in the `backend` directory:
@@ -102,12 +103,6 @@ NEWS_API_KEY=your-newsapi-key-here
 # AI Services
 GEMINI_API_KEY=your-gemini-api-key-here
 GOOGLE_TRANSLATE_KEY=your-google-translate-key-here
-
-# OAuth Credentials
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-GITHUB_CLIENT_ID=your-github-client-id
-GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
 
 ## 🏗️ Architecture
@@ -116,7 +111,7 @@ GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
 backend/
 ├── app.py              # Main Flask application
-├── auth.py             # OAuth authentication
+├── auth.py             # Authentication module
 ├── news_service.py     # News processing & AI integration
 ├── config.py           # Configuration management
 └── requirements.txt    # Python dependencies
@@ -140,8 +135,8 @@ frontend/
 - **Flask-CORS** - Cross-origin resource sharing
 - **Google Gemini API** - AI-powered text generation
 - **Google Translate API** - Language translation
-- **Authlib** - OAuth 2.0 implementation
-- **PyJWT** - JSON Web Token handling
+- **Secure Password Hashing** - Password security
+- **Secure Cookies** - Session management
 
 ### Frontend
 - **React 18** - Modern UI framework
@@ -187,8 +182,10 @@ python app.py
 |----------|--------|-------------|
 | `/api/health` | GET | Health check and service status |
 | `/api/news` | GET | Fetch news articles with AI summaries |
-| `/auth/login` | GET | OAuth login redirect |
-| `/auth/callback` | GET | OAuth callback handler |
+| `/auth/signup` | POST | Register new user |
+| `/auth/login` | POST | User login |
+| `/auth/logout` | POST | User logout |
+| `/auth/user` | GET | Get current user info |
 
 ### Example API Response
 ```json
