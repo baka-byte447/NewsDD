@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Bookmark, Trash2, Calendar, ExternalLink } from 'lucide-react';
-import { getSavedArticles, removeSavedArticle } from '../utils/storage';
-import NewsCard from './NewsCard';
+import { getSavedArticles, removeSavedArticle } from '../utils/storage.js';
+import NewsCard from './NewsCard.js';
 
 const SavedArticles = ({ onNewsClick, onBack }) => {
   const [savedArticles, setSavedArticles] = useState([]);

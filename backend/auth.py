@@ -1,144 +1,62 @@
-from flask import Blueprint, request, jsonify, session, redirect, url_for, current_app
-from authlib.integrations.flask_client import OAuth
-import requests
-import os
+from flask import Blueprint, request, jsonify, session
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_bp = Blueprint('auth', __name__)
 
-def init_oauth(app):
-    oauth = OAuth(app)
-    
-    google = None
-    github = None
-    
-    # Initialize Google OAuth if credentials are available
-    if app.config.get('GOOGLE_CLIENT_ID') and app.config.get('GOOGLE_CLIENT_SECRET'):
-        try:
-            google = oauth.register(
-                name='google',
-                client_id=app.config['GOOGLE_CLIENT_ID'],
-                client_secret=app.config['GOOGLE_CLIENT_SECRET'],
-                server_metadata_url='https://accounts.google.com/.well-known/openid_configuration',
-                client_kwargs={
-                    'scope': 'openid email profile'
-                }
-            )
-            print("✓ Google OAuth configured successfully")
-        except Exception as e:
-            print(f"✗ Failed to configure Google OAuth: {e}")
-            google = None
-    else:
-        print("⚠ Google OAuth not configured (missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET)")
-    
-    # Initialize GitHub OAuth if credentials are available
-    if app.config.get('GITHUB_CLIENT_ID') and app.config.get('GITHUB_CLIENT_SECRET'):
-        try:
-            github = oauth.register(
-                name='github',
-                client_id=app.config['GITHUB_CLIENT_ID'],
-                client_secret=app.config['GITHUB_CLIENT_SECRET'],
-                access_token_url='https://github.com/login/oauth/access_token',
-                access_token_params=None,
-                authorize_url='https://github.com/login/oauth/authorize',
-                authorize_params=None,
-                api_base_url='https://api.github.com/',
-                client_kwargs={'scope': 'user:email'},
-            )
-            print("✓ GitHub OAuth configured successfully")
-        except Exception as e:
-            print(f"✗ Failed to configure GitHub OAuth: {e}")
-            github = None
-    else:
-        print("⚠ GitHub OAuth not configured (missing GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET)")
-    
-    return oauth, google, github
+# Simple in-memory user store; replace with database in production
+_users_by_email = {}
 
-@auth_bp.route('/login/<provider>')
-def login(provider):
-    oauth = current_app.extensions['authlib.integrations.flask_client']
-    
-    if provider == 'google':
-        if not oauth.google:
-            return jsonify({'error': 'Google OAuth is not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.'}), 500
-        redirect_uri = url_for('auth.callback', provider='google', _external=True)
-        return oauth.google.authorize_redirect(redirect_uri)
-    elif provider == 'github':
-        if not oauth.github:
-            return jsonify({'error': 'GitHub OAuth is not configured. Please set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET environment variables.'}), 500
-        redirect_uri = url_for('auth.callback', provider='github', _external=True)
-        print(f"DEBUG: GitHub OAuth redirect_uri = {redirect_uri}")
-        print(f"DEBUG: GitHub OAuth client_id = {oauth.github.client_id}")
-        print(f"DEBUG: GitHub OAuth client_secret = {'*' * len(oauth.github.client_secret) if oauth.github.client_secret else 'None'}")
-        return oauth.github.authorize_redirect(redirect_uri)
-    else:
-        return jsonify({'error': 'Invalid provider. Supported providers: google, github'}), 400
 
-@auth_bp.route('/callback/<provider>')
-def callback(provider):
-    oauth = current_app.extensions['authlib.integrations.flask_client']
-    try:
-        if provider == 'google':
-            if not oauth.google:
-                return jsonify({'error': 'Google OAuth is not configured'}), 500
-            token = oauth.google.authorize_access_token()
-            user_info = token.get('userinfo')
-            user_data = {
-                'id': user_info['sub'],
-                'name': user_info['name'],
-                'email': user_info['email'],
-                'picture': user_info.get('picture'),
-                'provider': 'google'
-            }
-        elif provider == 'github':
-            if not oauth.github:
-                return jsonify({'error': 'GitHub OAuth is not configured'}), 500
-            token = oauth.github.authorize_access_token()
-            resp = oauth.github.get('user', token=token)
-            user_info = resp.json()
-            user_data = {
-                'id': str(user_info['id']),
-                'name': user_info.get('name', user_info['login']),
-                'email': user_info.get('email'),
-                'picture': user_info.get('avatar_url'),
-                'provider': 'github'
-            }
-        else:
-            return jsonify({'error': 'Invalid provider'}), 400
-        
-        session['user'] = user_data
-        # Use config for frontend URL
-        frontend_url = current_app.config.get('FRONTEND_URL', 'http://localhost:3000')
-        return redirect(f'{frontend_url}/dashboard')
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+@auth_bp.route('/signup', methods=['POST'])
+def signup():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+    password = data.get('password') or ''
+    name = (data.get('name') or '').strip() or email.split('@')[0]
 
-@auth_bp.route('/logout')
+    if not email or not password:
+        return jsonify({'error': 'Email and password are required'}), 400
+
+    if email in _users_by_email:
+        return jsonify({'error': 'User already exists'}), 409
+
+    _users_by_email[email] = {
+        'id': email,
+        'email': email,
+        'name': name,
+        'password_hash': generate_password_hash(password)
+    }
+
+    session['user'] = {'id': email, 'email': email, 'name': name}
+    return jsonify({'message': 'Signup successful', 'user': session['user']}), 201
+
+
+@auth_bp.route('/login', methods=['POST'])
+def login():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').strip().lower()
+    password = data.get('password') or ''
+
+    user = _users_by_email.get(email)
+    if not user or not check_password_hash(user['password_hash'], password):
+        return jsonify({'error': 'Invalid email or password'}), 401
+
+    session['user'] = {'id': user['id'], 'email': user['email'], 'name': user['name']}
+    return jsonify({'message': 'Login successful', 'user': session['user']})
+
+
+@auth_bp.route('/logout', methods=['POST'])
 def logout():
     session.pop('user', None)
     return jsonify({'message': 'Logged out successfully'})
 
-@auth_bp.route('/user')
+
+@auth_bp.route('/user', methods=['GET'])
 def get_user():
     user = session.get('user')
     if user:
         return jsonify(user)
     return jsonify({'error': 'Not authenticated'}), 401
-
-@auth_bp.route('/test-oauth')
-def test_oauth():
-    """Test endpoint to check OAuth configuration"""
-    oauth = current_app.extensions['authlib.integrations.flask_client']
-    
-    config_info = {
-        'github_configured': bool(oauth.github),
-        'github_client_id': oauth.github.client_id if oauth.github else None,
-        'github_client_secret': '***' if oauth.github and oauth.github.client_secret else None,
-        'frontend_url': current_app.config.get('FRONTEND_URL'),
-        'secret_key_configured': bool(current_app.config.get('SECRET_KEY')),
-        'redirect_uri': url_for('auth.callback', provider='github', _external=True)
-    }
-    
-    return jsonify(config_info)
 
 
 
