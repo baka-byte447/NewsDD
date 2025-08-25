@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from './components/Navbar.js';
-import Dashboard from './components/Dashboard.js';
+import Dashboard from './components/dashboard.js';
 import OnboardingModal from './components/OnboardingModal.js';
 import NewsModal from './components/NewsModal.js';
 import SettingsModal from './components/SettingsModal.js';
