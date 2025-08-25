@@ -1,4 +1,4 @@
-# NewsSumm - AI-Powered News Dashboard
+# NewsDigest - AI-Powered News Dashboard
 
 A modern, intelligent news aggregation and summarization platform built with React and Flask. Get personalized news with AI-powered summaries, multi-language support, and beautiful reading experience.
 
