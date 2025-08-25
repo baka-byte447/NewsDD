@@ -14,10 +14,7 @@ app.config.from_object(Config)
 app.secret_key = app.config['SECRET_KEY']
 
 # Configure CORS (use FRONTEND_URL from config plus localhost)
-allowed_origins = [
-    'http://localhost:3000',
-    app.config.get('FRONTEND_URL', 'http://localhost:3000')
-]
+allowed_origins = ["http://localhost:3000", "https://news-dd.vercel.app/"]
 CORS(app, supports_credentials=True, origins=allowed_origins)
 
 # No OAuth initialization; using email/password with server-side session

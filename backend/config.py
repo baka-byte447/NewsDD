@@ -14,4 +14,4 @@ class Config:
     GOOGLE_TRANSLATE_KEY = os.getenv('GOOGLE_TRANSLATE_KEY')
     
     # Frontend URL - use production URL in production, localhost in development
-    FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://news-summarizer-dashboard.vercel.app' if os.getenv('FLASK_ENV') == 'production' else 'http://localhost:3000')
+    FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://news-dd.vercel.app/' if os.getenv('FLASK_ENV') == 'production' else 'http://localhost:3000')
