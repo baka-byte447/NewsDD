@@ -13,11 +13,12 @@ app = Flask(__name__)
 app.config.from_object(Config)
 app.secret_key = app.config['SECRET_KEY']
 
-# Configure CORS for production
-CORS(app, supports_credentials=True, origins=[
-    'http://localhost:3000',  # Local development
-    'https://news-summarizer-dashboard.vercel.app'  # Production Vercel frontend
-])
+# Configure CORS (use FRONTEND_URL from config plus localhost)
+allowed_origins = [
+    'http://localhost:3000',
+    app.config.get('FRONTEND_URL', 'http://localhost:3000')
+]
+CORS(app, supports_credentials=True, origins=allowed_origins)
 
 # No OAuth initialization; using email/password with server-side session
 
