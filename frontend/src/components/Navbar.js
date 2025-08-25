@@ -12,7 +12,7 @@ import {
   X,
   Bookmark
 } from 'lucide-react';
-import { getReadingStreak, getDailyReads } from '../utils/storage';
+import { getReadingStreak, getDailyReads } from '../utils/storage.js';
 
 const Navbar = ({ 
   darkMode, 

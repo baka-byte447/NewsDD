@@ -5,6 +5,35 @@ const API_BASE = process.env.NODE_ENV === 'production'
   : 'http://localhost:5000';  // Development backend URL
 
 const api = {
+  // Auth endpoints
+  async signup({ email, password, name }) {
+    const response = await fetch(`${API_BASE}/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password, name })
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Signup failed');
+    }
+    return response.json();
+  },
+
+  async login({ email, password }) {
+    const response = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password })
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Login failed');
+    }
+    return response.json();
+  },
+
   // News endpoints
   async fetchNews(category = 'general', language = 'en', userLanguage = 'en') {
     const params = new URLSearchParams({ category, language, userLanguage });
@@ -68,10 +97,7 @@ const api = {
   },
 
   async logout() {
-    const response = await fetch(`${API_BASE}/auth/logout`, {
-      method: 'POST', // Usually logout should be POST
-      credentials: 'include'
-    });
+    const response = await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' });
     return response.json();
   },
 

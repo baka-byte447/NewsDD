@@ -1,22 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 import hashlib
@@ -24,7 +5,7 @@ import json
 import time
 from datetime import datetime
 from config import Config
-from auth import auth_bp, init_oauth
+from auth import auth_bp
 from news_service import NewsService
 import os
 
@@ -38,8 +19,7 @@ CORS(app, supports_credentials=True, origins=[
     'https://news-summarizer-dashboard.vercel.app'  # Production Vercel frontend
 ])
 
-# Initialize OAuth
-oauth, google, github = init_oauth(app)
+# No OAuth initialization; using email/password with server-side session
 
 # Initialize News Service
 news_service = NewsService(
@@ -63,33 +43,8 @@ def index():
         'message': 'News Dashboard API is running',
         'version': '1.0.0',
         'health_endpoint': '/api/health',
-        'documentation': 'Available endpoints: /api/news, /api/health, /auth/login/github'
+        'documentation': 'Available endpoints: /api/news, /api/health, /auth/signup, /auth/login, /auth/logout, /auth/user'
     })
-
-@app.route('/test-oauth-config')
-def test_oauth_config():
-    """Test endpoint to check OAuth configuration"""
-    try:
-        oauth = app.extensions['authlib.integrations.flask_client']
-        
-        config_info = {
-            'github_configured': bool(oauth.github),
-            'github_client_id': oauth.github.client_id if oauth.github else None,
-            'github_client_secret': '***' if oauth.github and oauth.github.client_secret else None,
-            'frontend_url': app.config.get('FRONTEND_URL'),
-            'secret_key_configured': bool(app.config.get('SECRET_KEY')),
-            'redirect_uri': f"http://localhost:5000/auth/callback/github",
-            'auth_endpoints': [
-                '/auth/login/github',
-                '/auth/callback/github',
-                '/auth/logout',
-                '/auth/user'
-            ]
-        }
-        
-        return jsonify(config_info)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/health')
 def health_check():
@@ -224,7 +179,8 @@ def not_found(error):
             '/api/health (GET) - Health check',
             '/api/news (GET) - Get news articles',
             '/api/share (POST) - Share article',
-            '/auth/login/github (GET) - GitHub login'
+            '/auth/signup (POST) - Sign up with email/password',
+            '/auth/login (POST) - Log in with email/password'
         ]
     }), 404
 
