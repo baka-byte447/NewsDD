@@ -14,11 +14,13 @@ app.config.from_object(Config)
 app.secret_key = app.config['SECRET_KEY']
 
 # Configure CORS
+ALLOWED_ORIGINS = ["http://localhost:3000", "https://news-dd.vercel.app"]
+
 CORS(
     app,
     resources={
         r"/*": {
-            "origins": ["http://localhost:3000", "https://news-dd.vercel.app"],
+            "origins": ALLOWED_ORIGINS,
             "supports_credentials": True,
             "allow_headers": ["Content-Type", "Authorization"],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
@@ -30,10 +32,23 @@ CORS(
 # Add CORS headers to all responses
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+    # Get the origin of the request
+    origin = request.headers.get('Origin', '')
+    
+    # If the origin is in our allowed origins, set it as the allowed origin
+    if origin in ALLOWED_ORIGINS:
+        response.headers.add('Access-Control-Allow-Origin', origin)
+    
+    # Add other CORS headers
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Max-Age', '3600')  # Cache preflight response for 1 hour
+    
+    # Handle preflight requests
+    if request.method == 'OPTIONS':
+        response.status_code = 200
+    
     return response
 
 # No OAuth initialization; using email/password with server-side session
